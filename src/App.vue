@@ -1,10 +1,23 @@
+<template>
+  <Header />
+  <div class="container">
+    <Balance :total = "+total" />
+    <IncomeExpense :income= "+income" :expenses= "+expenses" />
+    <TransactionList :transactions = "transactions" @transactionDeleted = "handleTransactionDeleted" />
+    <AddTransaction @submitTransaction = "handleTransactionSubmitted" />
+  </div>
+</template>
+
 <script setup>
   import AddTransaction from './components/AddTransaction.vue';
   import Balance from './components/Balance.vue';
   import Header from './components/Header.vue';
   import IncomeExpense from './components/IncomeExpense.vue';
   import TransactionList from './components/TransactionList.vue';
+  import { useToast } from 'vue-toastification';
   import { ref, computed } from 'vue';
+
+  const toast = useToast();
 
   const transactions = ref([
         {id: 1, text: 'Salary', amount: +7292},
@@ -36,15 +49,30 @@
       }, 0)
       .toFixed(2);
    })
+
+   const handleTransactionSubmitted = ((transactionData) => {
+    // console.log(transactionData);
+    transactions.value.push({
+      id: generateUniqueId(),
+      text: transactionData.text,
+      amount: transactionData.amount
+    });
+
+    toast.success("Transaction Added")
+   })
+
+   const generateUniqueId = () => {
+    return Math.floor(Math.random() * 1000000)
+   }
+
+   const handleTransactionDeleted = (id) => {
+    transactions.value = transactions.value.filter((transaction) =>
+      transaction.id !== id);
+
+    console.log(transactions.value)
+
+    toast.success("Transaction Deleted");
+   }
 </script>
 
-<template>
-  <Header />
-  <div class="container">
-    <Balance :total = "total" />
-    <IncomeExpense :income= "income" :expenses= "expenses" />
-    <TransactionList :transactions = "transactions" />
-    <AddTransaction />
-  </div>
-</template>
 
